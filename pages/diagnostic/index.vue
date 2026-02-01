@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, Compass, ChevronDown, CheckCircle2, XCircle, TrendingUp, Settings, Users, DollarSign, Heart, Cpu, Brain, Target } from 'lucide-vue-next'
+import { ArrowRight, Compass, ChevronDown, CheckCircle2, XCircle, TrendingUp, Settings, Users, DollarSign, Heart, Cpu, Brain, Target, Building2, Rocket, UserCheck, User, Repeat } from 'lucide-vue-next'
 
 useSeoMeta({
   title: 'Growth Diagnostic — Know Exactly Where You Stand | MJ Growth Partner',
@@ -164,8 +164,33 @@ useHead({
     <section class="section-pad bg-gray-50">
       <div class="container-narrow mx-auto">
         <FadeIn>
-          <h2 class="heading-lg mb-12 text-center">Is the Growth Diagnostic Right for You?</h2>
+          <div class="text-center mb-16">
+            <p class="text-brand-teal font-semibold text-sm uppercase tracking-wider mb-3">Who we work with</p>
+            <h2 class="heading-lg mb-4">Is the Growth Diagnostic Right for You?</h2>
+            <p class="body-lg max-w-2xl mx-auto">
+              Whether you're building something new or evolving what already exists,
+              the diagnostic gives you the clarity to move forward with confidence.
+            </p>
+          </div>
         </FadeIn>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-16">
+          <FadeIn v-for="(persona, i) in [
+            { icon: Building2, name: 'Founders & SME Owners', detail: 'Seeking strategic clarity, operational structure, or leadership support as they scale.' },
+            { icon: Rocket, name: 'Scaling Startups', detail: 'Looking to establish strong foundations and avoid common growth pitfalls.' },
+            { icon: UserCheck, name: 'Emerging Leaders', detail: 'Stepping into more responsibility and wanting to develop confidence, clarity, and leadership style.' },
+            { icon: User, name: 'Solo Entrepreneurs', detail: 'Who need a trusted sounding board to challenge their thinking and keep them focused.' },
+            { icon: Repeat, name: 'Professionals in Transition', detail: 'Redefining their path — stepping into entrepreneurship, pivoting careers, or seeking purpose-driven work.' },
+          ]" :key="i" :delay="i * 80">
+            <div class="bg-white rounded-2xl p-6 border border-gray-100 text-center h-full">
+              <div class="w-12 h-12 rounded-xl bg-brand-teal/10 flex items-center justify-center mx-auto mb-4">
+                <component :is="persona.icon" :size="22" class="text-brand-teal" />
+              </div>
+              <h3 class="font-bold text-sm mb-2">{{ persona.name }}</h3>
+              <p class="text-brand-grey text-xs leading-relaxed">{{ persona.detail }}</p>
+            </div>
+          </FadeIn>
+        </div>
 
         <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <FadeIn>

@@ -64,24 +64,35 @@ const whyItWorks = [
 
             <div class="space-y-4 body-md">
               <p>
-                I've spent my career building, managing, and fixing businesses — not advising
+                I've spent 17 years building, managing, and fixing businesses — not advising
                 from the sidelines.
               </p>
 
               <p>
-                As an entrepreneur, I've started and grown companies from scratch. I know what
-                it feels like to be the person every decision runs through, to work weekends
-                because no one else can do what you do, and to wonder if the business will
-                ever run without you in the room.
+                As an entrepreneur, I co-founded and scaled a hypergrowth fintech and a B2B SaaS,
+                experiencing the highs and lows firsthand. I know what it feels like to be the
+                person every decision runs through, to work weekends because no one else can do
+                what you do, and to wonder if the business will ever run without you in the room.
               </p>
 
               <p>
-                As a venture capital portfolio manager, I've overseen 8+ portfolio companies
-                simultaneously — each at a different stage, each with different problems, each
-                needing practical help, not theoretical frameworks. That experience taught me
-                something: the same growth problems show up everywhere. Founder dependency.
-                Manual processes. Unclear strategy. Tool sprawl. And the solution was never
-                more advice — it was better systems.
+                As a consultant, I co-founded and grew a strategy boutique from 0 to 50 employees,
+                advising 100+ clients on market-entry and strategy. As a venture capital portfolio
+                manager, I've overseen 8+ portfolio companies simultaneously — each at a different
+                stage, each with different problems, each needing practical help, not theoretical
+                frameworks.
+              </p>
+
+              <p>
+                Along the way, I've mentored founders through accelerator programs including
+                Antler, We Are Emersyn, Startmate, and PlusEight — and backed five promising
+                companies (and counting) as an investor, supporting founders beyond just capital.
+              </p>
+
+              <p>
+                That experience taught me something: the same growth problems show up everywhere.
+                Founder dependency. Manual processes. Unclear strategy. Tool sprawl. And the
+                solution was never more advice — it was better systems.
               </p>
 
               <p>
