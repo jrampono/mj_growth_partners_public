@@ -30,6 +30,8 @@ jobs:
       - run: npm run generate
         env:
           DEPLOY_TARGET: gh-pages
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

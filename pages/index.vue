@@ -28,9 +28,50 @@ const comparisons = [
   { theirs: 'Vague ROI', ours: 'Before-and-after metrics on every engagement' },
 ]
 
+const testimonials = [
+  {
+    quote: 'Working with Marlon has been transformative for both me and my business. His relentless pursuit of solutions, combined with clear and precise communication, gave me the confidence to make important decisions and set clear aspirations for the future.',
+    name: 'Aiden Smith',
+    title: 'Managing Director',
+    company: 'Paramount Fabrication',
+    photo: '/images/testimonials/aiden-smith.jpg',
+  },
+  {
+    quote: 'Marlon is present, listens with intent, assesses what the problems are within the business and identifies solutions that could be used to achieve the founders\' goals in a timely and efficient manner. He is an honest, ethical, straight shooter yet compassionate and knowledgeable. He understands your business quickly and identifies ways to improve it out of sight.',
+    name: 'Ryan Smith',
+    title: 'Founder of Quax',
+    company: 'Owner of Bis Tax',
+    photo: '/images/testimonials/ryan-smith.png',
+  },
+  {
+    quote: 'Marlon\'s approach to team building and leadership was exactly what I needed. He offered actionable solutions I hadn\'t considered before. Thanks to his guidance, I\'ve transformed my team dynamics and grown as a leader. The systems Marlon helped me implement have made managing staff so much easier, and I feel confident and supported.',
+    name: 'Lisa Munro',
+    title: 'Managing Director',
+    company: 'Happy Tummies',
+    photo: '/images/testimonials/lisa-munro.jpg',
+  },
+  {
+    quote: 'Marlon has been an invaluable asset to our company\'s growth journey. As a growth expert, mentor, and advisor within our programs, his genuine approach and exceptional knowledge have been instrumental in guiding the directions of the founders as well as shaping our program\'s success.',
+    name: 'Megan Del Borrello',
+    title: 'CEO & Founder',
+    company: 'We Are Emersyn',
+    photo: '/images/testimonials/megan-del-borrello.png',
+  },
+]
+
 const logos = [
-  'Xcend', 'WeMoney', 'We Are Emersyn', 'Central Regional TAFE', 'Jygro', 'Insight222',
-  'EarthFlix', 'Novata Solutions', 'Paramount Fabrication', 'Bis Tax', 'Quax', 'Louise M Shoes',
+  { name: 'Xcend', file: 'Xcend-Logo-1.png' },
+  { name: 'WeMoney', file: 'WeMoney-Logo.png' },
+  { name: 'We Are Emersyn', file: 'EMERSYN-Logo.png' },
+  { name: 'Central Regional TAFE', file: 'Central-Regional.png' },
+  { name: 'Jygro', file: 'Jygro-Logo.png' },
+  { name: 'Insight222', file: 'insight222.png' },
+  { name: 'EarthFlix', file: 'EarthFlix-Logo.png' },
+  { name: 'Novata Solutions', file: 'Novata-Soloutions-Logo-1-1.png' },
+  { name: 'Paramount Fabrication', file: 'Paramount-Fabrication.png' },
+  { name: 'Bis Tax', file: 'Bis-Tax-Team-Logo.png' },
+  { name: 'Quax', file: 'Quax.-Logo.png' },
+  { name: 'Louise M Shoes', file: 'Louise-M-Shoes.png' },
 ]
 </script>
 
@@ -39,7 +80,7 @@ const logos = [
     <!-- ============ HERO ============ -->
     <section class="relative min-h-screen flex items-center bg-gradient-to-br from-brand-navy via-brand-navy to-brand-teal-dark overflow-hidden">
       <!-- Background texture -->
-      <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')" />
+      <div class="absolute inset-0 opacity-[0.03] bg-cross-pattern" aria-hidden="true" />
 
       <div class="container-narrow mx-auto px-6 pt-32 pb-40 relative z-10">
         <div class="max-w-3xl">
@@ -68,7 +109,7 @@ const logos = [
 
           <FadeIn :delay="300">
             <div class="flex flex-wrap gap-4">
-              <NuxtLink to="/diagnostic" class="btn-primary !bg-brand-green !text-brand-black hover:!bg-white">
+              <NuxtLink to="/diagnostic" class="btn-primary-green">
                 Take the Growth Diagnostic
                 <ArrowRight :size="18" />
               </NuxtLink>
@@ -209,26 +250,45 @@ const logos = [
         </FadeIn>
 
         <FadeIn :delay="100">
-          <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-50">
-            <span v-for="logo in logos" :key="logo" class="text-sm font-semibold text-brand-grey tracking-wide">
-              {{ logo }}
-            </span>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 items-center justify-items-center gap-10 md:gap-12">
+            <div
+              v-for="logo in logos"
+              :key="logo.name"
+              class="flex items-center justify-center rounded-xl bg-white border border-gray-100 p-6 h-28 md:h-32 lg:h-36 w-full hover:shadow-md transition-all duration-300"
+            >
+              <img
+                :src="`/images/clients/${logo.file}`"
+                :alt="logo.name"
+                class="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-all duration-300"
+                loading="lazy"
+              />
+            </div>
           </div>
         </FadeIn>
 
-        <!-- Testimonial placeholders -->
-        <div class="grid md:grid-cols-3 gap-6 mt-16">
-          <FadeIn v-for="i in 3" :key="i" :delay="i * 100">
-            <div class="bg-white rounded-2xl p-8 text-left border border-gray-100">
-              <div class="flex gap-1 mb-4">
-                <div v-for="s in 5" :key="s" class="w-5 h-5 rounded-full bg-brand-green/20" />
+        <!-- Testimonials -->
+        <div class="grid md:grid-cols-2 gap-6 mt-16 text-left">
+          <FadeIn v-for="(t, i) in testimonials" :key="i" :delay="i * 100">
+            <div class="bg-white rounded-2xl p-8 border border-gray-100 h-full flex flex-col">
+              <div class="flex gap-1 mb-4" aria-label="5 star rating">
+                <svg v-for="s in 5" :key="s" class="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
               </div>
-              <p class="text-brand-grey text-sm italic leading-relaxed mb-6">
-                "{{ i === 1 ? 'Testimonial about measurable before-and-after results from working with Marlon and the Growth System methodology.' : i === 2 ? 'Testimonial about how this was different from other coaches — focused on implementation, not just advice.' : 'Testimonial from a portfolio company about operational involvement and building real systems.' }}"
+              <p class="text-brand-grey text-sm italic leading-relaxed mb-6 flex-1">
+                "{{ t.quote }}"
               </p>
-              <div>
-                <p class="font-semibold text-sm text-brand-black">Client Name</p>
-                <p class="text-xs text-brand-grey">Title, Company</p>
+              <div class="flex items-center gap-3">
+                <img
+                  :src="t.photo"
+                  :alt="t.name"
+                  class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                  loading="lazy"
+                />
+                <div>
+                  <p class="font-semibold text-sm text-brand-black">{{ t.name }}</p>
+                  <p class="text-xs text-brand-grey">{{ t.title }}, {{ t.company }}</p>
+                </div>
               </div>
             </div>
           </FadeIn>
@@ -238,7 +298,7 @@ const logos = [
 
     <!-- ============ FINAL CTA ============ -->
     <section class="relative section-pad bg-gradient-to-br from-brand-navy to-brand-teal-dark text-white overflow-hidden">
-      <div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')" />
+      <div class="absolute inset-0 opacity-5 bg-cross-pattern" aria-hidden="true" />
 
       <div class="container-narrow mx-auto text-center relative z-10">
         <FadeIn>
@@ -253,7 +313,7 @@ const logos = [
 
         <FadeIn :delay="200">
           <div class="flex flex-wrap justify-center gap-4">
-            <NuxtLink to="/diagnostic" class="btn-primary !bg-brand-green !text-brand-black hover:!bg-white">
+            <NuxtLink to="/diagnostic" class="btn-primary-green">
               Take the Growth Diagnostic
               <ArrowRight :size="18" />
             </NuxtLink>

@@ -1,23 +1,82 @@
 <script setup lang="ts">
 import { ArrowRight, Phone, FileSearch, Mail, Clock, MessageSquare, CheckCircle2 } from 'lucide-vue-next'
+import { useSupabase } from '~/composables/useSupabase'
 
 useSeoMeta({
   title: "Let's Start With a Conversation | MJ Growth Partner",
   description: 'Book a 15-minute discovery call, take the Growth Diagnostic, or send us a message.',
 })
 
+const route = useRoute()
+
+const diagnosticContext = computed(() => {
+  const score = route.query.score as string | undefined
+  const gap = route.query.gap as string | undefined
+  const name = route.query.name as string | undefined
+  if (!score) return null
+  return { score, gap, name }
+})
+
 const form = reactive({
-  name: '',
+  name: (route.query.name as string) || '',
   email: '',
   company: '',
   phone: '',
-  message: '',
+  message: diagnosticContext.value
+    ? `I just completed the Growth Diagnostic (score: ${diagnosticContext.value.score}/5.0${diagnosticContext.value.gap ? `, biggest gap: ${diagnosticContext.value.gap}` : ''}). I'd like to book a discovery session to discuss my results.`
+    : '',
 })
 
+const honeypot = ref('')
 const submitted = ref(false)
+const loading = ref(false)
+const errorMsg = ref('')
+const touched = reactive<Record<string, boolean>>({})
+const showErrors = ref(false)
 
-function handleSubmit() {
-  // Placeholder — wire to form handler (Formspree, Netlify, etc.)
+const validationErrors = computed(() => {
+  const errors: Record<string, string> = {}
+  if (!form.name.trim()) errors.name = 'Name is required.'
+  if (!form.email.trim()) errors.email = 'Email is required.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'Please enter a valid email address.'
+  if (!form.message.trim()) errors.message = 'Message is required.'
+  return errors
+})
+
+function fieldError(field: string) {
+  if (!touched[field] && !showErrors.value) return ''
+  return validationErrors.value[field] || ''
+}
+
+async function handleSubmit() {
+  showErrors.value = true
+  if (Object.keys(validationErrors.value).length > 0) return
+
+  if (honeypot.value) {
+    submitted.value = true
+    return
+  }
+
+  loading.value = true
+  errorMsg.value = ''
+
+  const supabase = useSupabase()
+  const { error } = await supabase.from('contact_submissions').insert({
+    name: form.name,
+    email: form.email,
+    company: form.company || null,
+    phone: form.phone || null,
+    message: form.message,
+    honeypot: honeypot.value || null,
+  })
+
+  loading.value = false
+
+  if (error) {
+    errorMsg.value = 'Something went wrong. Please try again or email us directly.'
+    return
+  }
+
   submitted.value = true
 }
 
@@ -60,11 +119,10 @@ const callSteps = [
                 The fastest way to find out if we can help. A 15-minute conversation — no
                 preparation needed, no commitment required.
               </p>
-              <a href="#" class="btn-primary justify-center w-full">
+              <a href="#contact-form" class="btn-primary justify-center w-full">
                 Book Your 15-Min Call
                 <ArrowRight :size="18" />
               </a>
-              <p class="text-xs text-brand-grey text-center mt-3">Calendly link — Marlon to provide</p>
             </div>
           </FadeIn>
 
@@ -170,33 +228,47 @@ const callSteps = [
           </div>
 
           <form v-else class="space-y-6" @submit.prevent="handleSubmit">
+            <!-- Honeypot — hidden from real users -->
+            <input v-model="honeypot" type="text" name="website" autocomplete="off" tabindex="-1" class="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
+
+            <div v-if="errorMsg" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+              {{ errorMsg }}
+            </div>
+
             <div class="grid md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium mb-2">Name *</label>
+                <label for="contact-name" class="block text-sm font-medium mb-2">Name *</label>
                 <input
+                  id="contact-name"
                   v-model="form.name"
                   type="text"
-                  required
-                  class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm"
+                  class="w-full px-4 py-3 rounded-xl border outline-none transition-all text-sm"
+                  :class="fieldError('name') ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20'"
                   placeholder="Your name"
+                  @blur="touched.name = true"
                 />
+                <p v-if="fieldError('name')" class="text-red-500 text-xs mt-1.5">{{ fieldError('name') }}</p>
               </div>
               <div>
-                <label class="block text-sm font-medium mb-2">Email *</label>
+                <label for="contact-email" class="block text-sm font-medium mb-2">Email *</label>
                 <input
+                  id="contact-email"
                   v-model="form.email"
                   type="email"
-                  required
-                  class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm"
+                  class="w-full px-4 py-3 rounded-xl border outline-none transition-all text-sm"
+                  :class="fieldError('email') ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20'"
                   placeholder="you@company.com"
+                  @blur="touched.email = true"
                 />
+                <p v-if="fieldError('email')" class="text-red-500 text-xs mt-1.5">{{ fieldError('email') }}</p>
               </div>
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium mb-2">Company</label>
+                <label for="contact-company" class="block text-sm font-medium mb-2">Company</label>
                 <input
+                  id="contact-company"
                   v-model="form.company"
                   type="text"
                   class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm"
@@ -204,8 +276,9 @@ const callSteps = [
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium mb-2">Phone</label>
+                <label for="contact-phone" class="block text-sm font-medium mb-2">Phone</label>
                 <input
+                  id="contact-phone"
                   v-model="form.phone"
                   type="tel"
                   class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm"
@@ -215,19 +288,27 @@ const callSteps = [
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-2">Message *</label>
+              <label for="contact-message" class="block text-sm font-medium mb-2">Message *</label>
               <textarea
+                id="contact-message"
                 v-model="form.message"
-                required
                 rows="5"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm resize-y"
+                class="w-full px-4 py-3 rounded-xl border outline-none transition-all text-sm resize-y"
+                :class="fieldError('message') ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20'"
                 placeholder="Tell us about your situation..."
+                @blur="touched.message = true"
               />
+              <p v-if="fieldError('message')" class="text-red-500 text-xs mt-1.5">{{ fieldError('message') }}</p>
             </div>
 
-            <button type="submit" class="btn-primary w-full justify-center">
-              Send Message
-              <ArrowRight :size="18" />
+            <button
+              type="submit"
+              class="btn-primary w-full justify-center"
+              :class="{ 'opacity-60 cursor-not-allowed': loading }"
+              :disabled="loading"
+            >
+              {{ loading ? 'Sending...' : 'Send Message' }}
+              <ArrowRight v-if="!loading" :size="18" />
             </button>
           </form>
         </FadeIn>

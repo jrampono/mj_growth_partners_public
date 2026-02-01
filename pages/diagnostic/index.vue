@@ -40,6 +40,26 @@ const faqItems = [
   { q: 'What happens after I receive the deliverables?', a: "We walk you through the results and present a tailored recommendation for Phase 2: your Growth Roadmap. No obligation to proceed — the diagnostic deliverables are yours regardless. But most clients continue because the next steps become obvious." },
   { q: 'Is my information confidential?', a: 'Absolutely. All information shared during the diagnostic is treated as strictly confidential. We do not share client data with any third party without your written consent.' },
 ]
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map(faq => ({
+          '@type': 'Question',
+          name: faq.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.a,
+          },
+        })),
+      }),
+    },
+  ],
+})
 </script>
 
 <template>
@@ -60,7 +80,7 @@ const faqItems = [
             is a scored assessment across 8 business dimensions that gives you an honest
             picture of your strengths, gaps, and highest-priority opportunities.
           </p>
-          <NuxtLink to="/diagnostic/start" class="btn-primary !bg-brand-green !text-brand-black hover:!bg-white">
+          <NuxtLink to="/diagnostic/start" class="btn-primary-green">
             Start the Diagnostic
             <ArrowRight :size="18" />
           </NuxtLink>
@@ -197,6 +217,9 @@ const faqItems = [
           <FadeIn v-for="(faq, i) in faqItems" :key="i" :delay="i * 60">
             <div class="border border-gray-100 rounded-xl overflow-hidden">
               <button
+                type="button"
+                :aria-expanded="faqs === i"
+                :aria-controls="`faq-panel-${i}`"
                 class="w-full flex items-center justify-between p-6 text-left font-semibold hover:bg-gray-50 transition-colors"
                 @click="faqs = faqs === i ? null : i"
               >
@@ -208,6 +231,8 @@ const faqItems = [
                 />
               </button>
               <div
+                :id="`faq-panel-${i}`"
+                role="region"
                 class="grid transition-all duration-300 ease-out overflow-hidden"
                 :class="faqs === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
               >
@@ -231,7 +256,7 @@ const faqItems = [
             Clarity that lasts as long as you need it.
           </p>
           <div class="flex flex-wrap justify-center gap-4">
-            <NuxtLink to="/diagnostic/start" class="btn-primary !bg-brand-green !text-brand-black hover:!bg-white">
+            <NuxtLink to="/diagnostic/start" class="btn-primary-green">
               Start the Growth Diagnostic
               <ArrowRight :size="18" />
             </NuxtLink>

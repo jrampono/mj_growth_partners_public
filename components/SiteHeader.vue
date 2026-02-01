@@ -3,6 +3,7 @@ import { Menu, X } from 'lucide-vue-next'
 
 const mobileOpen = ref(false)
 const scrolled = ref(false)
+const mobileMenuRef = ref<HTMLElement>()
 
 const navLinks = [
   { label: 'The Journey', to: '/services' },
@@ -11,14 +12,40 @@ const navLinks = [
   { label: 'Contact', to: '/contact' },
 ]
 
+function onScroll() {
+  scrolled.value = window.scrollY > 20
+}
+
+function trapFocus(e: KeyboardEvent) {
+  if (!mobileMenuRef.value || e.key !== 'Tab') return
+  const focusable = mobileMenuRef.value.querySelectorAll<HTMLElement>('a, button')
+  if (focusable.length === 0) return
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault()
+    last.focus()
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault()
+    first.focus()
+  }
+}
+
 onMounted(() => {
-  window.addEventListener('scroll', () => {
-    scrolled.value = window.scrollY > 20
-  })
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
 })
 
 watch(mobileOpen, (open) => {
   document.body.style.overflow = open ? 'hidden' : ''
+  if (open) {
+    document.addEventListener('keydown', trapFocus)
+  } else {
+    document.removeEventListener('keydown', trapFocus)
+  }
 })
 </script>
 
@@ -54,6 +81,9 @@ watch(mobileOpen, (open) => {
 
       <!-- Mobile toggle -->
       <button
+        type="button"
+        :aria-expanded="mobileOpen"
+        aria-label="Toggle navigation menu"
         class="md:hidden p-2 rounded-lg transition-colors"
         :class="scrolled ? 'text-brand-black' : 'text-white'"
         @click="mobileOpen = !mobileOpen"
@@ -72,7 +102,7 @@ watch(mobileOpen, (open) => {
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-4"
     >
-      <div v-if="mobileOpen" class="md:hidden fixed inset-0 top-[72px] bg-white z-40">
+      <div v-if="mobileOpen" ref="mobileMenuRef" class="md:hidden fixed inset-0 top-[72px] bg-white z-40" role="dialog" aria-label="Navigation menu">
         <nav class="flex flex-col p-6 gap-2">
           <NuxtLink
             v-for="link in navLinks"

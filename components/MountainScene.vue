@@ -13,6 +13,8 @@ defineProps<{
     preserveAspectRatio="none"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    role="presentation"
   >
     <!-- Far mountains -->
     <path d="M0 320L180 180L320 240L480 140L600 200L720 120L860 190L1000 100L1120 170L1260 80L1440 160V320H0Z" fill="#0A784A" opacity="0.15" />
@@ -32,6 +34,8 @@ defineProps<{
     preserveAspectRatio="none"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    role="presentation"
   >
     <path d="M0 80L240 40L480 60L720 20L960 50L1200 30L1440 55V80H0Z" fill="currentColor" opacity="0.06" />
     <path d="M0 80L360 55L720 65L1080 45L1440 60V80H0Z" fill="currentColor" opacity="0.04" />
@@ -45,6 +49,8 @@ defineProps<{
     preserveAspectRatio="none"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    role="presentation"
   >
     <path d="M0 100L180 60L360 80L540 40L720 70L900 30L1080 60L1260 20L1440 50V100H0Z" fill="#154C49" />
   </svg>

@@ -227,7 +227,7 @@ const timeline = [
               <div v-if="tier.popular" class="absolute -top-3 left-6 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 rounded-full">
                 Most Popular
               </div>
-              <p class="text-xs font-semibold uppercase tracking-wider mb-2" :class="tier.popular ? 'text-brand-green' : 'text-brand-green'">
+              <p class="text-xs font-semibold uppercase tracking-wider mb-2 text-brand-green">
                 {{ tier.trail }}
               </p>
               <h3 class="text-2xl font-bold mb-6">{{ tier.name }}</h3>
@@ -286,7 +286,7 @@ const timeline = [
             and what to focus on first. Everything else flows from there.
           </p>
           <div class="flex flex-wrap justify-center gap-4">
-            <NuxtLink to="/diagnostic/start" class="btn-primary !bg-brand-green !text-brand-black hover:!bg-white">
+            <NuxtLink to="/diagnostic/start" class="btn-primary-green">
               Take the Growth Diagnostic
               <ArrowRight :size="18" />
             </NuxtLink>

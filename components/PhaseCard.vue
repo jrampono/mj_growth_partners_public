@@ -26,7 +26,7 @@ defineProps<{
     </div>
 
     <!-- Trail metaphor -->
-    <p class="text-xs font-semibold uppercase tracking-wider mb-2" :class="active ? 'text-brand-green' : 'text-brand-green'">
+    <p class="text-xs font-semibold uppercase tracking-wider mb-2 text-brand-green">
       {{ trail }}
     </p>
 

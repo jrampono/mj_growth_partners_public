@@ -4,6 +4,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
 
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL || '',
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+    },
+  },
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxtjs/google-fonts',
@@ -34,6 +41,24 @@ export default defineNuxtConfig({
         { property: 'og:type', content: 'website' },
       ],
       htmlAttrs: { lang: 'en' },
+      script: [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'MJ Growth Partner',
+            description: 'Structured growth strategy and practical AI enablement for owner-operated businesses between $1M and $20M.',
+            url: 'https://mjgrowthpartner.com',
+            founder: {
+              '@type': 'Person',
+              name: 'Marlon Juenemann',
+            },
+            areaServed: 'AU',
+            serviceType: ['Business Consulting', 'AI Enablement', 'Growth Strategy'],
+          }),
+        },
+      ],
     },
   },
 })

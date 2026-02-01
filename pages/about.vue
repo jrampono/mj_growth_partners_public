@@ -48,14 +48,13 @@ const whyItWorks = [
         <div class="grid lg:grid-cols-5 gap-12 items-start">
           <!-- Photo placeholder -->
           <FadeIn class="lg:col-span-2">
-            <div class="aspect-[4/5] bg-gray-100 rounded-2xl flex items-center justify-center">
-              <div class="text-center text-brand-grey">
-                <div class="w-24 h-24 rounded-full bg-brand-teal/10 mx-auto mb-4 flex items-center justify-center">
-                  <Mountain :size="40" class="text-brand-teal" />
-                </div>
-                <p class="text-sm font-medium">Marlon Juenemann</p>
-                <p class="text-xs">Photo placeholder</p>
-              </div>
+            <div class="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100">
+              <img
+                src="/images/team/marlon-juenemann.png"
+                alt="Marlon Juenemann — Principal Growth Partner"
+                class="w-full h-full object-cover object-top"
+                loading="lazy"
+              />
             </div>
           </FadeIn>
 
@@ -195,7 +194,7 @@ const whyItWorks = [
             No pitch, no pressure. Just a straightforward discussion about where you are,
             where you want to go, and whether the Growth Diagnostic is the right starting point.
           </p>
-          <NuxtLink to="/contact" class="btn-primary !bg-brand-green !text-brand-black hover:!bg-white">
+          <NuxtLink to="/contact" class="btn-primary-green">
             Book a 15-Minute Call
             <ArrowRight :size="18" />
           </NuxtLink>

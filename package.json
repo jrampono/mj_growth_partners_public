@@ -10,15 +10,17 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.93.3",
     "nuxt": "3.15.4",
     "vue": "^3.5.0",
     "vue-router": "^4.4.0"
   },
   "devDependencies": {
-    "@nuxtjs/tailwindcss": "^6.12.0",
     "@nuxtjs/google-fonts": "^3.2.0",
+    "@nuxtjs/tailwindcss": "^6.12.0",
     "@vueuse/core": "^11.0.0",
     "@vueuse/nuxt": "^11.0.0",
-    "lucide-vue-next": "^0.460.0"
+    "lucide-vue-next": "^0.460.0",
+    "playwright": "^1.58.1"
   }
 }

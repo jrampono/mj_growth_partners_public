@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ArrowRight, ArrowLeft, CheckCircle2, Mountain, RotateCcw, Download } from 'lucide-vue-next'
 import { useDiagnostic, getBand } from '~/composables/useDiagnostic'
+import { useSupabase } from '~/composables/useSupabase'
 
 useSeoMeta({
   title: 'Growth Diagnostic — Take the Assessment | MJ Growth Partner',
@@ -22,16 +23,91 @@ const {
 } = useDiagnostic()
 
 const ratingLabels = [
-  { value: 1, label: 'Strongly Disagree', short: '1' },
-  { value: 2, label: 'Disagree', short: '2' },
-  { value: 3, label: 'Neutral', short: '3' },
-  { value: 4, label: 'Agree', short: '4' },
-  { value: 5, label: 'Strongly Agree', short: '5' },
+  { value: 1, label: 'Strongly Disagree', abbr: 'SD' },
+  { value: 2, label: 'Disagree', abbr: 'D' },
+  { value: 3, label: 'Neutral', abbr: 'N' },
+  { value: 4, label: 'Agree', abbr: 'A' },
+  { value: 5, label: 'Strongly Agree', abbr: 'SA' },
 ]
+
+const honeypot = ref('')
+const submitting = ref(false)
+const submitError = ref('')
+const hasSubmitted = ref(false)
+const contactTouched = reactive<Record<string, boolean>>({})
+const contactShowErrors = ref(false)
+
+const contactErrors = computed(() => {
+  const errors: Record<string, string> = {}
+  if (!state.contactInfo.name.trim()) errors.name = 'Name is required.'
+  if (!state.contactInfo.email.trim()) errors.email = 'Email is required.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.contactInfo.email)) errors.email = 'Please enter a valid email address.'
+  return errors
+})
+
+function contactFieldError(field: string) {
+  if (!contactTouched[field] && !contactShowErrors.value) return ''
+  return contactErrors.value[field] || ''
+}
+
+const dimensionKeyToColumn: Record<string, string> = {
+  'growth-engine': 'growth_engine',
+  'operations': 'operations',
+  'team-leadership': 'team_leadership',
+  'financial-health': 'financial_health',
+  'customer-experience': 'customer_experience',
+  'technology-tools': 'technology_tools',
+  'ai-readiness': 'ai_readiness',
+  'strategic-clarity': 'strategic_clarity',
+}
+
+async function submitDiagnostic() {
+  if (hasSubmitted.value || honeypot.value) return
+
+  submitting.value = true
+  submitError.value = ''
+
+  const rawAnswers: Record<string, number> = {}
+  for (const dim of state.dimensions) {
+    for (const q of dim.questions) {
+      if (q.score !== null) rawAnswers[q.id] = q.score
+    }
+  }
+
+  const scores = dimensionScores.value
+  const payload: Record<string, unknown> = {
+    name: state.contactInfo.name,
+    email: state.contactInfo.email,
+    company: state.contactInfo.company || null,
+    overall_score: overallScore.value,
+    overall_band: overallBand.value.label,
+    raw_answers: rawAnswers,
+    honeypot: honeypot.value || null,
+  }
+
+  for (const dim of scores) {
+    const col = dimensionKeyToColumn[dim.key]
+    if (col) payload[col] = dim.average
+  }
+
+  try {
+    const supabase = useSupabase()
+    const { error } = await supabase.from('diagnostic_submissions').insert(payload)
+    if (error) throw error
+    hasSubmitted.value = true
+  } catch {
+    submitError.value = 'Your results are shown below, but we couldn\u2019t save your submission. Please take a screenshot of your results.'
+  } finally {
+    submitting.value = false
+  }
+}
 
 function handleNext() {
   if (state.currentStep === 9) {
+    contactShowErrors.value = true
+    if (Object.keys(contactErrors.value).length > 0) return
     state.currentStep = 10
+    submitDiagnostic()
   } else {
     next()
   }
@@ -45,6 +121,14 @@ const lowestDimension = computed(() => {
 const highestDimension = computed(() => {
   const sorted = [...dimensionScores.value].sort((a, b) => b.average - a.average)
   return sorted[0]
+})
+
+const contactCtaUrl = computed(() => {
+  const params = new URLSearchParams()
+  if (overallScore.value) params.set('score', String(overallScore.value))
+  if (lowestDimension.value) params.set('gap', lowestDimension.value.name)
+  if (state.contactInfo.name) params.set('name', state.contactInfo.name)
+  return `/contact?${params.toString()}`
 })
 </script>
 
@@ -108,7 +192,7 @@ const highestDimension = computed(() => {
             </div>
 
             <div class="flex flex-col items-center gap-3">
-              <button class="btn-primary" @click="next">
+              <button type="button" class="btn-primary" @click="next">
                 Start the Assessment
                 <ArrowRight :size="18" />
               </button>
@@ -143,6 +227,9 @@ const highestDimension = computed(() => {
                   <button
                     v-for="r in ratingLabels"
                     :key="r.value"
+                    type="button"
+                    :aria-label="`${r.value} — ${r.label}`"
+                    :aria-pressed="q.score === r.value"
                     class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 border"
                     :class="q.score === r.value
                       ? 'bg-brand-teal text-white border-brand-teal'
@@ -151,6 +238,7 @@ const highestDimension = computed(() => {
                     @click="setScore(q.id, r.value)"
                   >
                     <span class="block">{{ r.value }}</span>
+                    <span class="block text-[10px] font-normal opacity-70 sm:hidden">{{ r.abbr }}</span>
                     <span class="block text-[10px] font-normal opacity-70 hidden sm:block">{{ r.label.split(' ')[0] }}</span>
                   </button>
                 </div>
@@ -159,11 +247,12 @@ const highestDimension = computed(() => {
 
             <!-- Nav buttons -->
             <div class="flex items-center justify-between mt-8">
-              <button class="flex items-center gap-2 text-sm text-brand-grey hover:text-brand-black transition-colors" @click="prev">
+              <button type="button" class="flex items-center gap-2 text-sm text-brand-grey hover:text-brand-black transition-colors" @click="prev">
                 <ArrowLeft :size="16" />
                 Back
               </button>
               <button
+                type="button"
                 class="btn-primary"
                 :class="{ 'opacity-40 cursor-not-allowed': !canProceed }"
                 :disabled="!canProceed"
@@ -184,30 +273,40 @@ const highestDimension = computed(() => {
             </div>
 
             <div class="bg-white rounded-2xl p-8 border border-gray-100 max-w-md mx-auto">
+              <!-- Honeypot — hidden from real users -->
+              <input v-model="honeypot" type="text" name="website" autocomplete="off" tabindex="-1" class="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
+
               <div class="space-y-4">
                 <div>
-                  <label class="block text-sm font-medium mb-1.5">Your name *</label>
+                  <label for="diag-name" class="block text-sm font-medium mb-1.5">Your name *</label>
                   <input
+                    id="diag-name"
                     v-model="state.contactInfo.name"
                     type="text"
-                    required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm"
+                    class="w-full px-4 py-3 rounded-xl border outline-none transition-all text-sm"
+                    :class="contactFieldError('name') ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20'"
                     placeholder="Full name"
+                    @blur="contactTouched.name = true"
                   />
+                  <p v-if="contactFieldError('name')" class="text-red-500 text-xs mt-1.5">{{ contactFieldError('name') }}</p>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium mb-1.5">Email *</label>
+                  <label for="diag-email" class="block text-sm font-medium mb-1.5">Email *</label>
                   <input
+                    id="diag-email"
                     v-model="state.contactInfo.email"
                     type="email"
-                    required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm"
+                    class="w-full px-4 py-3 rounded-xl border outline-none transition-all text-sm"
+                    :class="contactFieldError('email') ? 'border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20'"
                     placeholder="you@company.com"
+                    @blur="contactTouched.email = true"
                   />
+                  <p v-if="contactFieldError('email')" class="text-red-500 text-xs mt-1.5">{{ contactFieldError('email') }}</p>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium mb-1.5">Company</label>
+                  <label for="diag-company" class="block text-sm font-medium mb-1.5">Company</label>
                   <input
+                    id="diag-company"
                     v-model="state.contactInfo.company"
                     type="text"
                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none transition-all text-sm"
@@ -218,11 +317,12 @@ const highestDimension = computed(() => {
             </div>
 
             <div class="flex items-center justify-between mt-8 max-w-md mx-auto">
-              <button class="flex items-center gap-2 text-sm text-brand-grey hover:text-brand-black transition-colors" @click="prev">
+              <button type="button" class="flex items-center gap-2 text-sm text-brand-grey hover:text-brand-black transition-colors" @click="prev">
                 <ArrowLeft :size="16" />
                 Back
               </button>
               <button
+                type="button"
                 class="btn-primary"
                 :class="{ 'opacity-40 cursor-not-allowed': !canProceed }"
                 :disabled="!canProceed"
@@ -236,6 +336,11 @@ const highestDimension = computed(() => {
 
           <!-- ========== STEP 10: RESULTS ========== -->
           <div v-else-if="state.currentStep === 10" key="results" class="py-8 max-w-3xl mx-auto">
+            <!-- Submission error banner -->
+            <div v-if="submitError" class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700 mb-6">
+              {{ submitError }}
+            </div>
+
             <!-- Header -->
             <div class="text-center mb-10">
               <p class="text-brand-teal text-xs font-semibold uppercase tracking-wider mb-2">Your Growth Scorecard</p>
@@ -304,11 +409,12 @@ const highestDimension = computed(() => {
             <div class="bg-brand-navy rounded-2xl p-8 text-white text-center">
               <h3 class="text-xl font-bold mb-3">Want to know what to do about it?</h3>
               <p class="text-white/70 text-sm mb-6 max-w-md mx-auto">
-                Book a free 90-minute discovery session where we go deeper on your results,
-                identify root causes, and map out what to fix first.
+                Book a free 90-minute discovery session where we go deeper on your results
+                <template v-if="lowestDimension"> — especially <strong class="text-brand-green">{{ lowestDimension.name }}</strong></template>
+                — identify root causes, and map out what to fix first.
               </p>
               <div class="flex flex-wrap justify-center gap-3">
-                <NuxtLink to="/contact" class="btn-primary !bg-brand-green !text-brand-black hover:!bg-white">
+                <NuxtLink :to="contactCtaUrl" class="btn-primary-green">
                   Book Discovery Session
                   <ArrowRight :size="18" />
                 </NuxtLink>
@@ -317,7 +423,7 @@ const highestDimension = computed(() => {
 
             <!-- Reset -->
             <div class="text-center mt-8">
-              <button class="text-sm text-brand-grey hover:text-brand-black transition-colors flex items-center gap-2 mx-auto" @click="reset">
+              <button type="button" class="text-sm text-brand-grey hover:text-brand-black transition-colors flex items-center gap-2 mx-auto" @click="reset">
                 <RotateCcw :size="14" />
                 Start over
               </button>

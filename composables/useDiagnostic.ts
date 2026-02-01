@@ -158,6 +158,50 @@ export function getBand(score: number): BandInfo {
   }
 }
 
+const STORAGE_KEY = 'mjgp-diagnostic-progress'
+
+function saveToStorage(state: { dimensions: DiagnosticDimension[]; currentStep: number; contactInfo: { name: string; email: string; company: string } }) {
+  try {
+    const data = {
+      currentStep: state.currentStep,
+      contactInfo: state.contactInfo,
+      scores: state.dimensions.map(d => ({
+        key: d.key,
+        answers: d.questions.map(q => ({ id: q.id, score: q.score })),
+      })),
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  } catch { /* localStorage unavailable */ }
+}
+
+function loadFromStorage(state: { dimensions: DiagnosticDimension[]; currentStep: number; contactInfo: { name: string; email: string; company: string } }) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return
+    const data = JSON.parse(raw)
+    if (data.currentStep != null && data.currentStep < 10) {
+      state.currentStep = data.currentStep
+    }
+    if (data.contactInfo) {
+      Object.assign(state.contactInfo, data.contactInfo)
+    }
+    if (Array.isArray(data.scores)) {
+      for (const saved of data.scores) {
+        const dim = state.dimensions.find(d => d.key === saved.key)
+        if (!dim) continue
+        for (const ans of saved.answers) {
+          const q = dim.questions.find(q => q.id === ans.id)
+          if (q && ans.score != null) q.score = ans.score
+        }
+      }
+    }
+  } catch { /* localStorage unavailable or corrupt */ }
+}
+
+function clearStorage() {
+  try { localStorage.removeItem(STORAGE_KEY) } catch { /* noop */ }
+}
+
 export function useDiagnostic() {
   const state = reactive({
     dimensions: JSON.parse(JSON.stringify(dimensions)) as DiagnosticDimension[],
@@ -168,6 +212,11 @@ export function useDiagnostic() {
       company: '',
     },
   })
+
+  // Restore saved progress on init (client-side only)
+  if (import.meta.client) {
+    loadFromStorage(state)
+  }
 
   const totalSteps = 10 // intro(0) + 8 dimensions + contact(9) → results(10)
 
@@ -214,15 +263,21 @@ export function useDiagnostic() {
 
   const overallBand = computed(() => getBand(overallScore.value))
 
+  function persist() {
+    if (import.meta.client) saveToStorage(state)
+  }
+
   function next() {
     if (canProceed.value && state.currentStep < 10) {
       state.currentStep++
+      persist()
     }
   }
 
   function prev() {
     if (state.currentStep > 0) {
       state.currentStep--
+      persist()
     }
   }
 
@@ -235,6 +290,7 @@ export function useDiagnostic() {
       const q = dim.questions.find(q => q.id === questionId)
       if (q) {
         q.score = score
+        persist()
         break
       }
     }
@@ -248,6 +304,7 @@ export function useDiagnostic() {
         q.score = null
       }
     }
+    clearStorage()
   }
 
   return {
