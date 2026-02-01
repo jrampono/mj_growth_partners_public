@@ -6,6 +6,8 @@ useSeoMeta({
   description: 'MJ Growth Partner was built from real operational experience across dozens of businesses — not theory.',
 })
 
+const { baseURL } = useRuntimeConfig().app
+
 const principles = [
   { title: 'Systems over heroics', detail: "If growth depends on one person working harder, it's not sustainable. Build the system." },
   { title: 'Fix the fundamentals first', detail: "AI is a powerful tool, but it doesn't fix a broken process. Get the foundation right, then accelerate." },
@@ -50,7 +52,7 @@ const whyItWorks = [
           <FadeIn class="lg:col-span-2">
             <div class="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100">
               <img
-                src="/images/team/marlon-juenemann.png"
+                :src="`${baseURL}images/team/marlon-juenemann.png`"
                 alt="Marlon Juenemann — Principal Growth Partner"
                 class="w-full h-full object-cover object-top"
                 loading="lazy"

@@ -6,6 +6,8 @@ useSeoMeta({
   description: 'Structured growth strategy and practical AI enablement for owner-operated businesses between $1M and $20M. Stop being the bottleneck.',
 })
 
+const { baseURL } = useRuntimeConfig().app
+
 const painPoints = [
   { icon: Users, text: 'You are the bottleneck.', detail: 'Every decision, every client relationship, every important task runs through you. Step away for a week and things slip.' },
   { icon: Clock, text: "You know what needs fixing — but there's no bandwidth.", detail: "The strategy is clear enough. The problem is finding time to actually execute it while running the day-to-day." },
@@ -34,28 +36,28 @@ const testimonials = [
     name: 'Aiden Smith',
     title: 'Managing Director',
     company: 'Paramount Fabrication',
-    photo: '/images/testimonials/aiden-smith.jpg',
+    photo: 'images/testimonials/aiden-smith.jpg',
   },
   {
     quote: 'Marlon is present, listens with intent, assesses what the problems are within the business and identifies solutions that could be used to achieve the founders\' goals in a timely and efficient manner. He is an honest, ethical, straight shooter yet compassionate and knowledgeable. He understands your business quickly and identifies ways to improve it out of sight.',
     name: 'Ryan Smith',
     title: 'Founder of Quax',
     company: 'Owner of Bis Tax',
-    photo: '/images/testimonials/ryan-smith.png',
+    photo: 'images/testimonials/ryan-smith.png',
   },
   {
     quote: 'Marlon\'s approach to team building and leadership was exactly what I needed. He offered actionable solutions I hadn\'t considered before. Thanks to his guidance, I\'ve transformed my team dynamics and grown as a leader. The systems Marlon helped me implement have made managing staff so much easier, and I feel confident and supported.',
     name: 'Lisa Munro',
     title: 'Managing Director',
     company: 'Happy Tummies',
-    photo: '/images/testimonials/lisa-munro.jpg',
+    photo: 'images/testimonials/lisa-munro.jpg',
   },
   {
     quote: 'Marlon has been an invaluable asset to our company\'s growth journey. As a growth expert, mentor, and advisor within our programs, his genuine approach and exceptional knowledge have been instrumental in guiding the directions of the founders as well as shaping our program\'s success.',
     name: 'Megan Del Borrello',
     title: 'CEO & Founder',
     company: 'We Are Emersyn',
-    photo: '/images/testimonials/megan-del-borrello.png',
+    photo: 'images/testimonials/megan-del-borrello.png',
   },
 ]
 
@@ -257,7 +259,7 @@ const logos = [
               class="flex items-center justify-center rounded-xl bg-white border border-gray-100 p-6 h-28 md:h-32 lg:h-36 w-full hover:shadow-md transition-all duration-300"
             >
               <img
-                :src="`/images/clients/${logo.file}`"
+                :src="`${baseURL}images/clients/${logo.file}`"
                 :alt="logo.name"
                 class="max-h-full max-w-full object-contain opacity-70 hover:opacity-100 transition-all duration-300"
                 loading="lazy"
@@ -280,7 +282,7 @@ const logos = [
               </p>
               <div class="flex items-center gap-3">
                 <img
-                  :src="t.photo"
+                  :src="`${baseURL}${t.photo}`"
                   :alt="t.name"
                   class="w-12 h-12 rounded-full object-cover flex-shrink-0"
                   loading="lazy"
